@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#EDF1F4">
+<title>Aplikasi VDOT</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+:root{
+  /* Layout: satu kolom ala aplikasi HP, tab bawah, angka lari dengan tabular-nums */
+  --bg:#EDF1F4; --surface:#FFFFFF; --surface2:#E4EAEF; --ink:#10222E; --muted:#51636F; --line:#D2DBE2;
+  --accent:#C63D17; --accent-ink:#FFFFFF; --good:#17734F; --warn:#7A4300; --warn-bg:#FBEBD3; --focus:#1F6FEB;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-display:'Space Grotesk','Inter',system-ui,sans-serif;
+  --sat:var(--safe-area-inset-top,env(safe-area-inset-top,0px));
+  --sab:var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px));
+  --sal:var(--safe-area-inset-left,env(safe-area-inset-left,0px));
+  --sar:var(--safe-area-inset-right,env(safe-area-inset-right,0px));
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C151B; --surface:#14212A; --surface2:#1C2C38; --ink:#E9F0F4; --muted:#9AAEBB; --line:#263845;
+    --accent:#FF7A4D; --accent-ink:#1A0A04; --good:#4CC9A0; --warn:#F3C27A; --warn-bg:#3A2A12; --focus:#6BA6FF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C151B; --surface:#14212A; --surface2:#1C2C38; --ink:#E9F0F4; --muted:#9AAEBB; --line:#263845;
+  --accent:#FF7A4D; --accent-ink:#1A0A04; --good:#4CC9A0; --warn:#F3C27A; --warn-bg:#3A2A12; --focus:#6BA6FF;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); font:15px/1.45 var(--font-body);
+  margin:0;
+  padding-top:calc(16px + var(--sat));
+  padding-bottom:calc(104px + var(--sab));
+  padding-left:max(16px,var(--sal));
+  padding-right:max(16px,var(--sar));
+}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
+h1{font-size:1.45rem;font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.05rem;font-weight:600}
+.sub{color:var(--muted);font-size:.85rem;margin:2px 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.sect{display:flex;flex-direction:column;gap:10px;min-width:0}
+.label-caps{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field>span{font-size:.8rem;color:var(--muted);font-weight:500}
+input[type=text]{
+  width:100%;min-width:0;height:44px;padding:0 12px;border:1px solid var(--line);border-radius:10px;
+  background:var(--bg);color:var(--ink);font:500 16px var(--font-body);font-variant-numeric:tabular-nums;
+}
+input[type=text]:focus-visible,button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font:500 .85rem var(--font-body);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn{height:38px;padding:0 14px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:600 .85rem var(--font-body);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn[disabled]{opacity:.55;cursor:default}
+.hero{display:flex;flex-direction:column;gap:6px}
+.vdot{font:700 4.2rem/1 var(--font-display);color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.stat{display:flex;flex-direction:column;font-size:.75rem;color:var(--muted)}
+.stat b{font:600 1rem var(--font-display);color:var(--ink);font-variant-numeric:tabular-nums}
+.note{font-size:.8rem;color:var(--muted)}
+.alert{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.85rem;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.list{display:flex;flex-direction:column}
+.item{padding:12px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px;min-width:0}
+.item:first-child{border-top:0;padding-top:0}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.name{font-weight:600}
+.big{font:600 1.35rem var(--font-display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:.72rem;color:var(--muted)}
+.metrics b{display:block;font:600 .9rem var(--font-body);color:var(--ink);font-variant-numeric:tabular-nums}
+.tip{font-size:.8rem;color:var(--muted)}
+.empty{color:var(--muted);font-size:.9rem;padding:8px 0}
+.testrow{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+.testrow:first-of-type{border-top:0;padding-top:0}
+.testin{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+details{border-top:1px solid var(--line);padding-top:12px}
+summary{cursor:pointer;font-weight:600;min-height:32px;display:flex;align-items:center}
+.pgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+.diff{color:var(--good);font-weight:600}
+nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+  display:flex;justify-content:center;
+  padding:8px max(16px,var(--sar)) calc(8px + var(--sab)) max(16px,var(--sal));
+}
+nav .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:560px}
+nav button{height:44px;border-radius:10px;border:0;background:transparent;color:var(--muted);font:600 .9rem var(--font-body);cursor:pointer}
+nav button[aria-selected=true]{background:var(--surface2);color:var(--ink)}
+.prose p,.prose li{font-size:.9rem;margin:0 0 8px}
+.prose ul{padding-left:18px;margin:0 0 8px}
+.prose code{font-size:.82rem;background:var(--surface2);padding:1px 5px;border-radius:5px;word-break:break-word}
+@media (prefers-reduced-motion:no-preference){.vdot{transition:color .2s}}
+</style>
+
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>Aplikasi VDOT</h1>
+    <p class="sub">Pace latihan, prediksi race, cadence dan stride dari satu hasil lari.</p>
+  </header>
+
+  <!-- ============ TAB HITUNG ============ -->
+  <section id="tab-hitung" class="wrap" style="gap:20px">
+    <div class="card">
+      <h2>Hasil lari terbaru</h2>
+      <div class="chips" id="chips" role="group" aria-label="Jarak umum">
+        <button class="chip" data-act="chip" data-d="5000" aria-pressed="false">5K</button>
+        <button class="chip" data-act="chip" data-d="10000" aria-pressed="false">10K</button>
+        <button class="chip" data-act="chip" data-d="15000" aria-pressed="false">15K</button>
+        <button class="chip" data-act="chip" data-d="21097.5" aria-pressed="false">Half</button>
+        <button class="chip" data-act="chip" data-d="42195" aria-pressed="false">Full</button>
+      </div>
+      <label class="field"><span>Jarak (meter)</span><input type="text" id="dist" inputmode="decimal" autocomplete="off"></label>
+      <div class="row3">
+        <label class="field"><span>Jam</span><input type="text" id="hh" inputmode="numeric" autocomplete="off"></label>
+        <label class="field"><span>Menit</span><input type="text" id="mm" inputmode="numeric" autocomplete="off"></label>
+        <label class="field"><span>Detik</span><input type="text" id="ss" inputmode="decimal" autocomplete="off"></label>
+      </div>
+      <label class="field"><span>Tinggi badan (cm), untuk cadence dan stride</span><input type="text" id="hgt" inputmode="numeric" autocomplete="off"></label>
+      <p class="note">Contoh terisi: 5.000 m dalam 30:00, tinggi 162 cm. Ganti dengan hasil Anda. Isian tersimpan di browser ini.</p>
+    </div>
+
+    <div class="card hero" id="hero" aria-live="polite"></div>
+
+    <div class="sect">
+      <h2>Pace latihan</h2>
+      <div class="card"><div class="list" id="zones"></div></div>
+    </div>
+
+    <div class="sect">
+      <h2>Pace dan prediksi race</h2>
+      <div class="card">
+        <div class="list" id="races"></div>
+        <label class="field"><span>Jarak lain (meter)</span><input type="text" id="custom" inputmode="decimal" autocomplete="off" placeholder="mis. 7000"></label>
+        <div class="list" id="customOut"></div>
+      </div>
+      <p class="note">Prediksi 15K ke atas mengandaikan latihan yang cukup. Saat race, kunci satu angka cadence di metronom; stride menyesuaikan dengan pace.</p>
+    </div>
+
+    <div class="card">
+      <details>
+        <summary>Pengaturan zona dan cadence</summary>
+        <p class="note" style="margin-top:10px">% VO2max zona adalah perkiraan; cocokkan dengan tabel buku Daniels' Running Formula. Rumus cadence adalah heuristik, bukan standar.</p>
+        <div class="pgrid">
+          <label class="field"><span>E lambat (%)</span><input type="text" id="z_eL" inputmode="decimal"></label>
+          <label class="field"><span>E cepat (%)</span><input type="text" id="z_eF" inputmode="decimal"></label>
+          <label class="field"><span>T (%)</span><input type="text" id="z_T" inputmode="decimal"></label>
+          <label class="field"><span>I (%)</span><input type="text" id="z_I" inputmode="decimal"></label>
+          <label class="field"><span>R (%)</span><input type="text" id="z_R" inputmode="decimal"></label>
+          <span></span>
+          <label class="field"><span>Cadence dasar (langkah/mnt)</span><input type="text" id="c_base" inputmode="decimal"></label>
+          <label class="field"><span>Tambahan per 1 m/detik</span><input type="text" id="c_slope" inputmode="decimal"></label>
+          <label class="field"><span>Tinggi acuan (cm)</span><input type="text" id="c_ref" inputmode="decimal"></label>
+          <label class="field"><span>Koreksi per cm di atas acuan</span><input type="text" id="c_adj" inputmode="decimal"></label>
+        </div>
+        <p style="margin:12px 0 0"><button class="btn ghost" data-act="resetSettings">Kembalikan ke bawaan</button></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ TAB TES ============ -->
+  <section id="tab-tes" class="wrap" style="gap:20px" hidden>
+    <div class="card">
+      <h2>Hasil tes menjadi VDOT</h2>
+      <p class="note" style="margin:-6px 0 0">Lari sejauh mungkin dalam waktu tes, di rute datar, usaha maksimal dan merata.</p>
+      <div>
+        <div class="testrow">
+          <div class="testin"><label class="field"><span>Tes 12 menit: jarak (m)</span><input type="text" id="t12" inputmode="decimal" autocomplete="off"></label><span id="use12"></span></div>
+          <div id="res12"></div>
+        </div>
+        <div class="testrow">
+          <div class="testin"><label class="field"><span>Tes 15 menit: jarak (m)</span><input type="text" id="t15" inputmode="decimal" autocomplete="off"></label><span id="use15"></span></div>
+          <div id="res15"></div>
+        </div>
+        <div class="testrow">
+          <div class="testin"><label class="field"><span>Tes 30 menit: jarak (m)</span><input type="text" id="t30" inputmode="decimal" autocomplete="off"></label><span id="use30"></span></div>
+          <div id="res30"></div>
+        </div>
+      </div>
+      <p class="note">Contoh terisi: tes 15 menit = 2.790 m. Tombol "Pakai VDOT ini" membuat tab Hitung memakai VDOT dari tes itu.</p>
+    </div>
+
+    <div class="card">
+      <h2>Jarak tes yang diharapkan</h2>
+      <div id="srcInfo" class="note"></div>
+      <label class="field"><span>VDOT target (opsional)</span><input type="text" id="vt" inputmode="decimal" autocomplete="off" placeholder="mis. 32,6"></label>
+      <p class="note" style="margin:-6px 0 0">Contoh: 32,6 = VDOT untuk 10K 59:30.</p>
+      <div class="list" id="preds"></div>
+      <p class="note">Jarak dicari dengan iterasi sampai VDOT-nya sama dengan VDOT acuan atau target.</p>
+    </div>
+  </section>
+
+  <!-- ============ TAB PANDUAN ============ -->
+  <section id="tab-panduan" class="wrap" style="gap:20px" hidden>
+    <div class="card prose">
+      <h2>Cara pakai</h2>
+      <ul>
+        <li>Isi jarak, waktu, dan tinggi badan di tab Hitung. Pakai hasil lomba atau time trial terbaru dengan usaha maksimal; 5K sampai 10K paling cocok.</li>
+        <li>VDOT, pace latihan, prediksi race, cadence, dan stride muncul otomatis.</li>
+        <li>Tab Tes menghitung VDOT dari tes 12, 15, dan 30 menit, dan jarak tes yang seharusnya tercapai dari VDOT Anda.</li>
+        <li>Perbarui setiap 4-6 minggu atau setelah lomba baru.</li>
+      </ul>
+      <h2 style="margin-top:6px">Rumus</h2>
+      <p>Persamaan Daniels dan Gilbert, dengan <code>v</code> = kecepatan (m/menit) dan <code>t</code> = waktu (menit):</p>
+      <p><code>VO2 = -4,60 + 0,182258 v + 0,000104 v²</code></p>
+      <p><code>%VO2max = 0,8 + 0,1894393 e^(-0,012778 t) + 0,2989558 e^(-0,1932605 t)</code></p>
+      <p><code>VDOT = VO2 / %VO2max</code></p>
+      <p>Pace zona dihitung dari kebalikan persamaan VO2, dengan VO2 = % zona x VDOT. Pace M diambil dari prediksi marathon.</p>
+      <p>Cadence = dasar + tambahan x kecepatan (m/detik) + koreksi tinggi. Stride (m/langkah) = kecepatan x 60 / cadence.</p>
+      <h2 style="margin-top:6px">Keterbatasan</h2>
+      <ul>
+        <li>VDOT adalah indeks performa dari hasil lomba, bukan VO2max hasil tes laboratorium.</li>
+        <li>Rumus paling akurat untuk lomba sekitar 4 menit sampai 4 jam.</li>
+        <li>% VO2max zona latihan adalah perkiraan; cocokkan dengan buku Daniels' Running Formula.</li>
+        <li>Cuaca panas dan lembap membuat hasil nyata lebih lambat dari prediksi.</li>
+        <li>Cadence dan stride adalah heuristik, bukan standar. Ubah cadence bertahap (umumnya sekitar 5% per tahap).</li>
+      </ul>
+      <p class="note">Sumber: Daniels &amp; Gilbert, Oxygen Power (1979); Daniels' Running Formula.</p>
+    </div>
+  </section>
+</main>
+
+<nav aria-label="Menu utama">
+  <div class="tabs" role="tablist">
+    <button role="tab" id="nav-hitung" data-tab="hitung" aria-selected="true">Hitung</button>
+    <button role="tab" id="nav-tes" data-tab="tes" aria-selected="false">Tes Waktu</button>
+    <button role="tab" id="nav-panduan" data-tab="panduan" aria-selected="false">Panduan</button>
+  </div>
+</nav>
+
+<script>
+//<core>
+function vo2(v){return -4.6+0.182258*v+0.000104*v*v}
+function pctMax(t){return 0.8+0.1894393*Math.exp(-0.012778*t)+0.2989558*Math.exp(-0.1932605*t)}
+function vdotOf(d,t){var v=d/t;return vo2(v)/pctMax(t)}
+function speedForVO2(x){return (-0.182258+Math.sqrt(0.182258*0.182258+4*0.000104*(x+4.6)))/(2*0.000104)}
+function timeFor(d,V){var lo=d/1000*1.5,hi=d/1000*15,m,i;for(i=0;i<60;i++){m=(lo+hi)/2;if(vdotOf(d,m)>V)lo=m;else hi=m}return (lo+hi)/2}
+function distFor(T,V){var lo=T/15*1000,hi=T/1.5*1000,m,i;for(i=0;i<60;i++){m=(lo+hi)/2;if(vdotOf(m,T)>V)hi=m;else lo=m}return (lo+hi)/2}
+function cadenceOf(kmh,H,c){var h=(isFinite(H)&&H>0)?H:c.ref;return Math.round(c.base+c.slope*(kmh/3.6)+c.adj*(h-c.ref))}
+function strideOf(kmh,cad){return (kmh/3.6)*60/cad}
+//</core>
+
+(function(){
+var DEF={dist:'5000',hh:'0',mm:'30',ss:'0',hgt:'162',
+  z:{eL:'59',eF:'74',T:'88',I:'98',R:'105'},
+  c:{base:'147',slope:'9.5',ref:'170',adj:'-0.3'},
+  t:{'12':'','15':'2790','30':''},vt:'32.6',custom:'',src:null};
+var S=JSON.parse(JSON.stringify(DEF));
+try{var raw=localStorage.getItem('aplikasi-vdot-v1');if(raw){var o=JSON.parse(raw);
+  Object.keys(DEF).forEach(function(k){if(o[k]!==undefined)S[k]=o[k]});}}catch(e){}
+function save(){try{localStorage.setItem('aplikasi-vdot-v1',JSON.stringify(S))}catch(e){}}
+
+function $(id){return document.getElementById(id)}
+function num(s){var x=parseFloat(String(s==null?'':s).trim().replace(',','.'));return isFinite(x)?x:NaN}
+function n0(s){var x=num(s);return x>0?x:0}
+function nf(x,d){return x.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmtM(x){return Math.round(x).toLocaleString('id-ID')}
+function fmtPace(min){var s=Math.round(min*60);return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2)}
+function fmtTime(min){var s=Math.round(min*60),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),r=s%60;
+  return h>0?h+':'+('0'+m).slice(-2)+':'+('0'+r).slice(-2):m+':'+('0'+r).slice(-2)}
+function cfg(){return {base:num(S.c.base),slope:num(S.c.slope),ref:num(S.c.ref),adj:num(S.c.adj)}}
+function cfgOk(c){return isFinite(c.base)&&isFinite(c.slope)&&isFinite(c.ref)&&isFinite(c.adj)}
+
+var TESTS=[{k:'12',dur:12,name:'Tes 12 menit'},{k:'15',dur:15,name:'Tes 15 menit'},{k:'30',dur:30,name:'Tes 30 menit'}];
+var RACES=[
+ {n:'5K',d:5000,tip:'Pace merata. Km pertama jangan lebih cepat dari sekitar 5 detik di bawah pace target.'},
+ {n:'10K',d:10000,tip:'Pace merata; tahan di km 1-3, dorong di 2 km terakhir bila masih kuat.'},
+ {n:'15K',d:15000,tip:'Pace merata; mulai menambah tekanan setelah km 10.'},
+ {n:'10 mil',d:16093.44,tip:'Pace merata; jaga energi dan minum teratur.'},
+ {n:'Half marathon',d:21097.5,tip:'Mulai sedikit konservatif, negative split ringan di 5 km terakhir.'},
+ {n:'Marathon',d:42195,tip:'Mulai konservatif. Prediksi mengandaikan latihan marathon yang memadai; hasil nyata bisa lebih lambat.'}];
+
+function raceResult(){
+  var d=num(S.dist),t=n0(S.hh)*60+n0(S.mm)+n0(S.ss)/60;
+  if(!(d>0&&t>0))return null;
+  var v=d/t;return {d:d,t:t,v:v,vo2:vo2(v),pct:pctMax(t),V:vdotOf(d,t),pace:t/(d/1000)};
+}
+function testResult(k,dur){
+  var d=num(S.t[k]);if(!(d>0))return null;
+  return {d:d,V:vdotOf(d,dur),pace:dur/(d/1000),kmh:d/1000/(dur/60)};
+}
+function effective(race){
+  if(S.src){var tr=testResult(S.src,+S.src);if(tr)return {V:tr.V,from:'tes '+S.src+' menit'}}
+  if(race)return {V:race.V,from:null};
+  return null;
+}
+function metricsHTML(items){return '<div class="metrics">'+items.map(function(x){return '<div>'+x[0]+'<b>'+x[1]+'</b></div>'}).join('')+'</div>'}
+function cadStride(kmh,H,c){
+  if(!cfgOk(c))return {cad:'-',str:'-'};
+  var cad=cadenceOf(kmh,H,c);return {cad:String(cad),str:nf(strideOf(kmh,cad),2)};
+}
+
+function render(){
+  var race=raceResult(),eff=effective(race),H=num(S.hgt),c=cfg();
+  // chips
+  var dn=num(S.dist);
+  Array.prototype.forEach.call(document.querySelectorAll('#chips .chip'),function(b){b.setAttribute('aria-pressed',String(Math.abs(+b.dataset.d-dn)<0.01))});
+
+  // hero
+  var hero=$('hero');
+  if(!race){hero.innerHTML='<span class="label-caps">VDOT</span><div class="vdot">-</div><p class="note" style="margin:0">Isi jarak dan waktu untuk melihat hasil.</p>'}
+  else{
+    var h='<span class="label-caps">VDOT'+(eff.from?' (dari '+eff.from+')':'')+'</span><div class="vdot">'+nf(eff.V,1)+'</div>';
+    if(eff.from){h+='<div class="alert"><span>Pace latihan dan race memakai VDOT dari '+eff.from+'. VDOT hasil lari di atas: '+nf(race.V,1)+'.</span><button class="btn ghost" data-act="clearSrc">Pakai hasil lari</button></div>'}
+    if(race.t<4||race.t>240){h+='<div class="alert"><span>Waktu di luar 4 menit sampai 4 jam: hasil kurang akurat.</span></div>'}
+    h+='<div class="stats"><div class="stat">Pace lari ini<b>'+fmtPace(race.pace)+'/km</b></div><div class="stat">VO2<b>'+nf(race.vo2,1)+'</b></div><div class="stat">% VO2max<b>'+nf(race.pct*100,1)+'%</b></div></div>';
+    hero.innerHTML=h;
+  }
+
+  // zones
+  var zones=$('zones'),races=$('races'),cOut=$('customOut');
+  if(!eff){zones.innerHTML=races.innerHTML=cOut.innerHTML='<div class="empty">Hasil muncul setelah jarak dan waktu terisi.</div>';}
+  else{
+    var V=eff.V;
+    var mT=Math.round(timeFor(42195,V)*60)/60, mPace=mT/42.195;
+    function zr(p){var pc=num(p);if(!(pc>0))return null;var v=speedForVO2(pc/100*V);return 1000/v}
+    var Z=[
+     {n:'E lambat',pace:zr(S.z.eL),use:'Recovery dan awal long run.'},
+     {n:'E cepat',pace:zr(S.z.eF),use:'Easy run dan long run, masih bisa bicara bebas.'},
+     {n:'M (pace marathon)',pace:mPace,use:'Blok pace marathon di dalam long run.'},
+     {n:'T (tempo)',pace:zr(S.z.T),use:'Tempo 20-30 menit, atau cruise interval 5-10 menit dengan jeda jog 1 menit.'},
+     {n:'I (interval)',pace:zr(S.z.I),use:'Interval 3-5 menit dengan jeda jog; maksimal sekitar 8% volume mingguan.'},
+     {n:'R (repetisi)',pace:zr(S.z.R),use:'Repetisi 200-400 m dengan pemulihan penuh.'}];
+    zones.innerHTML=Z.map(function(z){
+      if(!z.pace)return '<div class="item"><div class="top"><span class="name">'+z.n+'</span><span class="big">-</span></div><div class="tip">Isi % VO2max zona di pengaturan.</div></div>';
+      var kmh=60/z.pace,cs=cadStride(kmh,H,c);
+      return '<div class="item"><div class="top"><span class="name">'+z.n+'</span><span class="big">'+fmtPace(z.pace)+'<small style="font-size:.75rem;font-weight:500;color:var(--muted)"> /km</small></span></div>'
+        +metricsHTML([['Per 400 m',fmtPace(z.pace*0.4)],['km/jam',nf(kmh,1)],['Cadence',cs.cad],['Stride (m)',cs.str]])
+        +'<div class="tip">'+z.use+'</div></div>';
+    }).join('');
+
+    function raceRow(r,tip,nameHTML){
+      var t=Math.round(timeFor(r.d,V)*60)/60,pace=t/(r.d/1000),kmh=60/pace,cs=cadStride(kmh,H,c);
+      return '<div class="item"><div class="top"><span class="name">'+nameHTML+'</span><span class="big">'+fmtTime(t)+'</span></div>'
+        +metricsHTML([['Pace/km',fmtPace(pace)],['km/jam',nf(kmh,1)],['Cadence',cs.cad],['Stride (m)',cs.str]])
+        +(tip?'<div class="tip">'+tip+'</div>':'')+'</div>';
+    }
+    races.innerHTML=RACES.map(function(r){return raceRow(r,r.tip,r.n)}).join('');
+    var cd=num(S.custom);
+    cOut.innerHTML=(cd>0)?raceRow({d:cd},'', fmtM(cd)+' m'):'';
+  }
+
+  // tes tab
+  TESTS.forEach(function(T){
+    var tr=testResult(T.k,T.dur),el=$('res'+T.k),btn=$('use'+T.k);
+    if(!tr){el.innerHTML='<div class="empty" style="padding:0">Isi jarak untuk melihat VDOT.</div>';btn.innerHTML='';return}
+    var cs=cadStride(tr.kmh,H,c);
+    el.innerHTML='<div class="top"><span class="name">VDOT '+nf(tr.V,1)+'</span><span class="note">Pace '+fmtPace(tr.pace)+'/km</span></div>'
+      +metricsHTML([['km/jam',nf(tr.kmh,1)],['Cadence',cs.cad],['Stride (m)',cs.str],['Jarak (m)',fmtM(tr.d)]]);
+    var on=(S.src===T.k);
+    btn.innerHTML='<button class="btn'+(on?'':' ghost')+'" data-act="use" data-k="'+T.k+'"'+(on?' disabled':'')+'>'+(on?'Dipakai':'Pakai VDOT ini')+'</button>';
+  });
+  var bestV=null;TESTS.forEach(function(T){var tr=testResult(T.k,T.dur);if(tr&&(bestV==null||tr.V>bestV))bestV=tr.V});
+  var si=$('srcInfo'),vt=num(S.vt);
+  si.textContent=eff?('VDOT acuan: '+nf(eff.V,1)+(eff.from?' (dari '+eff.from+')':' (dari hasil lari di tab Hitung)')+(bestV!=null?'. VDOT tertinggi dari tes: '+nf(bestV,1)+'.':'.')):'Isi hasil lari di tab Hitung untuk VDOT acuan.';
+  var rowsP='';
+  TESTS.forEach(function(T){
+    var a=eff?Math.round(distFor(T.dur,eff.V)):null,b=(vt>0)?Math.round(distFor(T.dur,vt)):null;
+    rowsP+='<div class="item"><div class="top"><span class="name">'+T.name+'</span><span class="big">'+(a!=null?fmtM(a)+' m':'-')+'</span></div>'
+      +'<div class="metrics" style="grid-template-columns:repeat(3,1fr)"><div>Pace<b>'+(a?fmtPace(T.dur/(a/1000))+'/km':'-')+'</b></div>'
+      +'<div>Untuk VDOT target<b>'+(b!=null?fmtM(b)+' m':'-')+'</b></div>'
+      +'<div>Selisih<b class="diff">'+((a!=null&&b!=null)?(b-a>=0?'+':'')+fmtM(b-a)+' m':'-')+'</b></div></div></div>';
+  });
+  $('preds').innerHTML=rowsP;
+}
+
+// ---- inputs
+var MAP={dist:['dist'],hh:['hh'],mm:['mm'],ss:['ss'],hgt:['hgt'],custom:['custom'],vt:['vt']};
+function setInputs(){
+  ['dist','hh','mm','ss','hgt','custom','vt'].forEach(function(k){$(k).value=S[k]});
+  ['12','15','30'].forEach(function(k){$('t'+k).value=S.t[k]});
+  ['eL','eF','T','I','R'].forEach(function(k){$('z_'+k).value=S.z[k]});
+  ['base','slope','ref','adj'].forEach(function(k){$('c_'+k).value=S.c[k]});
+}
+['dist','hh','mm','ss','hgt','custom','vt'].forEach(function(k){$(k).addEventListener('input',function(){S[k]=this.value;save();render()})});
+['12','15','30'].forEach(function(k){$('t'+k).addEventListener('input',function(){S.t[k]=this.value;save();render()})});
+['eL','eF','T','I','R'].forEach(function(k){$('z_'+k).addEventListener('input',function(){S.z[k]=this.value;save();render()})});
+['base','slope','ref','adj'].forEach(function(k){$('c_'+k).addEventListener('input',function(){S.c[k]=this.value;save();render()})});
+
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]');
+  if(b){
+    var a=b.dataset.act;
+    if(a==='chip'){S.dist=b.dataset.d;$('dist').value=S.dist}
+    else if(a==='use'){S.src=b.dataset.k}
+    else if(a==='clearSrc'){S.src=null}
+    else if(a==='resetSettings'){S.z=JSON.parse(JSON.stringify(DEF.z));S.c=JSON.parse(JSON.stringify(DEF.c));setInputs()}
+    save();render();return;
+  }
+  var t=e.target.closest('[data-tab]');
+  if(t){location.hash=t.dataset.tab}
+});
+
+// ---- tabs (hash: #hitung, #tes, #panduan)
+function showTab(){
+  var h=(location.hash||'').replace('#','');if(['hitung','tes','panduan'].indexOf(h)<0)h='hitung';
+  ['hitung','tes','panduan'].forEach(function(k){
+    $('tab-'+k).hidden=(k!==h);$('nav-'+k).setAttribute('aria-selected',String(k===h));
+  });
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',showTab);
+
+setInputs();render();showTab();
+})();
+</script>
+</body>
+</html>

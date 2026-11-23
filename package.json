@@ -1,0 +1,13 @@
+{
+  "name": "aplikasi-vdot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aplikasi VDOT: pace latihan, prediksi race, cadence dan stride",
+  "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/core": "^8.3.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.3.0"
+  }
+}
